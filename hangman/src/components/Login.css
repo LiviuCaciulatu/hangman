@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Butcherman&display=swap');
+
+/* src/components/Login.css */
+/* src/components/Login.css */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .login-form, .new-user-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+  }
+  
+  .login-form div, .new-user-form div {
+    margin-bottom: 10px;
+    
+  }
+  
+  .login-form label, .new-user-form label {
+    margin-right: 20px;
+  }
+  
+  .login-form input, .new-user-form input {
+    padding: 5px;
+    font-size: 1.5rem;
+    background-color: transparent;
+    font-family: Butcherman, cursive;
+  }
+  
+  button {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 5px;
+    color: #000000;
+    transition: all 0.3s ease;
+  }
+  
+  button:hover {
+    color: grey;
+    background-color: #000000;
+    opacity: 0.7;
+  }
+  
+  

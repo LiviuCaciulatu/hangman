@@ -1,6 +1,5 @@
-// src/components/Game.js
 import React, { useState, useEffect } from 'react';
-import './Game.css'; // Ensure this is up-to-date
+import './Game.css';
 
 const fetchWords = async () => {
   try {
@@ -22,66 +21,82 @@ const getRandomWord = (words) => {
 const Game = () => {
   const [word, setWord] = useState('');
   const [guessedLetters, setGuessedLetters] = useState([]);
-  const [remainingAttempts, setRemainingAttempts] = useState(7); // Start with 7 attempts
+  const [remainingAttempts, setRemainingAttempts] = useState(7);
   const [message, setMessage] = useState('');
   const [gameOver, setGameOver] = useState(false);
+  const [input, setInput] = useState('');
+  const [notification, setNotification] = useState('');
+
+  const loadWord = async () => {
+    const words = await fetchWords();
+    if (words.length > 0) {
+      setWord(getRandomWord(words));
+      resetGame();
+    } else {
+      setMessage('Failed to load words.');
+    }
+  };
 
   useEffect(() => {
-    const loadWord = async () => {
-      const words = await fetchWords();
-      if (words.length > 0) {
-        setWord(getRandomWord(words));
-        setGameOver(false);
-        setRemainingAttempts(7);
-        setGuessedLetters([]);
-        setMessage('');
-      } else {
-        setMessage('Failed to load words.');
-      }
-    };
-
     loadWord();
   }, []);
 
-  const handleGuess = (letter) => {
-    if (gameOver) return;
-    if (guessedLetters.includes(letter)) return;
-  
-    const updatedGuessedLetters = [...guessedLetters, letter];
-    setGuessedLetters(updatedGuessedLetters);
-  
-    if (!word.includes(letter)) {
-      const newRemainingAttempts = remainingAttempts - 1;
-      setRemainingAttempts(newRemainingAttempts);
-      checkWin(updatedGuessedLetters, newRemainingAttempts);
-    } else {
-      checkWin(updatedGuessedLetters, remainingAttempts);
-    }
-  };
-
-  const checkWin = (updatedGuessedLetters, updatedRemainingAttempts) => {
-    const wordGuessed = word.split('').every(letter => updatedGuessedLetters.includes(letter));
-  
-    if (wordGuessed) {
-      setGameOver(true);
-      setMessage('You Won!');
-    } else if (updatedRemainingAttempts <= 0) {
-      setGameOver(true);
-      setMessage(`Game Over! \nThe word was: ${word}`);
-    }
-  };
-  
-  const handlePlayAgain = () => {
+  const resetGame = () => {
     setGameOver(false);
     setGuessedLetters([]);
     setRemainingAttempts(7);
     setMessage('');
-    const loadWord = async () => {
-      const words = await fetchWords();
-      if (words.length > 0) {
-        setWord(getRandomWord(words));
+    setNotification('');
+    setInput('');
+  };
+
+  const handleGuess = (guess) => {
+    if (gameOver) return;
+
+    const formattedGuess = guess.toUpperCase();
+
+    if (formattedGuess.length === 1) {
+      if (guessedLetters.includes(formattedGuess)) {
+        setNotification(`You already guessed "${formattedGuess}"`);
+        return;
       }
-    };
+
+      const updatedGuessedLetters = [...guessedLetters, formattedGuess];
+      setGuessedLetters(updatedGuessedLetters);
+
+      if (!word.includes(formattedGuess)) {
+        setRemainingAttempts(prev => prev - 1);
+      }
+
+      checkWin(updatedGuessedLetters);
+    } else if (formattedGuess.length === word.length) {
+      if (formattedGuess === word) {
+        setGameOver(true);
+        setMessage(`You won! The word was: ${word}`);
+      } else {
+        setNotification('Incorrect word! Try again.');
+        setRemainingAttempts(prev => prev - 1);
+        checkWin(guessedLetters);
+      }
+    } else {
+      setNotification('Please guess either one letter or the whole word.');
+    }
+    setInput('');
+  };
+
+  const checkWin = (updatedGuessedLetters) => {
+    const wordGuessed = word.split('').every(letter => updatedGuessedLetters.includes(letter));
+
+    if (wordGuessed) {
+      setGameOver(true);
+      setMessage(`You Won! The word was: ${word}`);
+    } else if (remainingAttempts <= 0) {
+      setGameOver(true);
+      setMessage(`Game Over! The word was: ${word}`);
+    }
+  };
+
+  const handlePlayAgain = () => {
     loadWord();
   };
 
@@ -89,13 +104,19 @@ const Game = () => {
     return word.split('').map(letter => (guessedLetters.includes(letter) ? letter : '_')).join(' ');
   };
 
-  const rows = [
-    'QWERTYUIOP',
-    'ASDFGHJKL',
-    'ZXCVBNM'
-  ];
+  const handleInputChange = (e) => {
+    const input = e.target.value.toUpperCase();
+    setInput(input);
+  };
 
-  // Determine the image path based on remaining attempts
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input) {
+      handleGuess(input);
+    }
+  };
+
+  const incorrectLetters = guessedLetters.filter(letter => !word.includes(letter));
   const attemptImage = `/images/${7 - remainingAttempts}.png`;
 
   return (
@@ -107,21 +128,19 @@ const Game = () => {
         <>
           <p className="word">Word: {renderWord()}</p>
           <p className="attempts">Attempts remaining: {remainingAttempts}</p>
-          <div className="keyboard">
-            {rows.map((row, index) => (
-              <div key={index} className="keyboard-row">
-                {row.split('').map(letter => (
-                  <button
-                    key={letter}
-                    onClick={() => handleGuess(letter)}
-                    disabled={guessedLetters.includes(letter) || gameOver}
-                  >
-                    {letter}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
+          {notification && <p className="notification">{notification}</p>}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              disabled={gameOver}
+              autoFocus
+              className="input-form"
+            />
+            <button className="submit-letter" type="submit" disabled={gameOver}>Guess</button>
+          </form>
+          <p className="used-letters">Used letters: {incorrectLetters.join(', ')}</p>
         </>
       ) : (
         <div className="game-over">

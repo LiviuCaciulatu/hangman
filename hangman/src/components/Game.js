@@ -1,3 +1,4 @@
+// src/components/Game.js
 import React, { useState, useEffect } from 'react';
 import './Game.css';
 
@@ -18,10 +19,10 @@ const getRandomWord = (words) => {
   return words[randomIndex].toUpperCase();
 };
 
-const Game = () => {
+const Game = ({ attempts, onEndGame }) => {
   const [word, setWord] = useState('');
   const [guessedLetters, setGuessedLetters] = useState([]);
-  const [remainingAttempts, setRemainingAttempts] = useState(7);
+  const [remainingAttempts, setRemainingAttempts] = useState(attempts);
   const [message, setMessage] = useState('');
   const [gameOver, setGameOver] = useState(false);
   const [input, setInput] = useState('');
@@ -44,7 +45,7 @@ const Game = () => {
   const resetGame = () => {
     setGameOver(false);
     setGuessedLetters([]);
-    setRemainingAttempts(7);
+    setRemainingAttempts(attempts);
     setMessage('');
     setNotification('');
     setInput('');
@@ -79,7 +80,7 @@ const Game = () => {
         checkWin(guessedLetters);
       }
     } else {
-      setNotification('Please guess either one letter or the whole word.');
+      setNotification('One letter at a time!');
     }
     setInput('');
   };
@@ -90,7 +91,7 @@ const Game = () => {
     if (wordGuessed) {
       setGameOver(true);
       setMessage(`You Won! The word was: ${word}`);
-    } else if (remainingAttempts <= 0) {
+    } else if (remainingAttempts <= 1) {
       setGameOver(true);
       setMessage(`Game Over! The word was: ${word}`);
     }
@@ -117,7 +118,7 @@ const Game = () => {
   };
 
   const incorrectLetters = guessedLetters.filter(letter => !word.includes(letter));
-  const attemptImage = `/images/${7 - remainingAttempts}.png`;
+  const attemptImage = `/images/${attempts - remainingAttempts}.png`;
 
   return (
     <div className="game-container">
@@ -155,8 +156,10 @@ const Game = () => {
           <button className="play-again" onClick={handlePlayAgain}>Play Again</button>
         </div>
       )}
+      <button className="end-game" onClick={onEndGame}>End Game</button>
     </div>
   );
 };
 
 export default Game;
+

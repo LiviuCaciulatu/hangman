@@ -25,6 +25,7 @@ header {
   transition: font-size 3s, margin-top 3s;
 }
 
+
 .title.transitioned {
   opacity: 0.7;
   margin-top: -80vh; /* Move to the top of the page */

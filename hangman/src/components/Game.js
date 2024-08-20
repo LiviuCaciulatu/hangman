@@ -57,8 +57,10 @@ const Game = ({ attempts, onEndGame }) => {
     const formattedGuess = guess.toUpperCase();
 
     if (formattedGuess.length === 1) {
+      setNotification('');
       if (guessedLetters.includes(formattedGuess)) {
         setNotification(`You already guessed "${formattedGuess}"`);
+        setInput('');
         return;
       }
 
@@ -70,6 +72,7 @@ const Game = ({ attempts, onEndGame }) => {
       }
 
       checkWin(updatedGuessedLetters);
+      setInput('');
     } else if (formattedGuess.length === word.length) {
       if (formattedGuess === word) {
         setGameOver(true);
@@ -81,6 +84,7 @@ const Game = ({ attempts, onEndGame }) => {
       }
     } else {
       setNotification('One letter at a time!');
+      setInput('');
     }
     setInput('');
   };

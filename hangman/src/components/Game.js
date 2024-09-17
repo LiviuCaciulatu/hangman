@@ -53,9 +53,9 @@ const Game = ({ attempts, onEndGame }) => {
 
   const handleGuess = (guess) => {
     if (gameOver) return;
-
+  
     const formattedGuess = guess.toUpperCase();
-
+  
     if (formattedGuess.length === 1) {
       setNotification('');
       if (guessedLetters.includes(formattedGuess)) {
@@ -63,15 +63,15 @@ const Game = ({ attempts, onEndGame }) => {
         setInput('');
         return;
       }
-
+  
       const updatedGuessedLetters = [...guessedLetters, formattedGuess];
       setGuessedLetters(updatedGuessedLetters);
-
+  
       if (!word.includes(formattedGuess)) {
         setRemainingAttempts(prev => prev - 1);
       }
-
-      checkWin(updatedGuessedLetters);
+  
+      checkWin(updatedGuessedLetters, formattedGuess);
       setInput('');
     } else if (formattedGuess.length === word.length) {
       if (formattedGuess === word) {
@@ -86,16 +86,24 @@ const Game = ({ attempts, onEndGame }) => {
       setNotification('One letter at a time!');
       setInput('');
     }
-    setInput('');
   };
 
-  const checkWin = (updatedGuessedLetters) => {
+  const checkWin = (updatedGuessedLetters, lastGuess = '') => {
     const wordGuessed = word.split('').every(letter => updatedGuessedLetters.includes(letter));
-
+  
     if (wordGuessed) {
       setGameOver(true);
       setMessage(`You Won! The word was: ${word}`);
-    } else if (remainingAttempts <= 1) {
+    } else if (remainingAttempts === 1 && !word.includes(lastGuess)) {
+      setGameOver(true);
+      setMessage(`Game Over! The word was: ${word}`);
+    } else if (remainingAttempts <= 1 && word.includes(lastGuess)) {
+      const finalWordGuessed = word.split('').every(letter => updatedGuessedLetters.includes(letter));
+      if (finalWordGuessed) {
+        setGameOver(true);
+        setMessage(`You Won! The word was: ${word}`);
+      }
+    } else if (remainingAttempts <= 0) {
       setGameOver(true);
       setMessage(`Game Over! The word was: ${word}`);
     }

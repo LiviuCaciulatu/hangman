@@ -3,15 +3,17 @@ import './Game.css';
 
 const fetchWords = async () => {
   try {
-    const response = await fetch('/words.txt');
+    const response = await fetch(`${window.location.origin}/text/words.txt`);
+    if (!response.ok) throw new Error('Failed to fetch words');
     const text = await response.text();
     const words = text.split(',').map(word => word.trim()).filter(word => word.length > 0);
     return words;
   } catch (error) {
     console.error('Error fetching words:', error);
-    return [];
+    return ['DEFAULT', 'WORDS', 'HERE'];
   }
 };
+
 
 const getRandomWord = (words) => {
   const randomIndex = Math.floor(Math.random() * words.length);

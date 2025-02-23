@@ -7,7 +7,7 @@ const Header = ({ onStart, titleTransition, buttonTransition, gameStarted }) => 
       <h1 className={`title ${titleTransition ? 'transitioned' : ''}`}>HANGMAN</h1>
       {!gameStarted && (
         <button className={`start-button ${buttonTransition ? 'transitioned' : ''}`} onClick={onStart}>
-          Start Game
+          Start Game!
         </button>
       )}
     </header>
